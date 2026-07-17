@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import sys
+from contextlib import asynccontextmanager
 from mcp.server.fastmcp import FastMCP
 
 from auth import load_auth
@@ -11,10 +12,21 @@ if not auth.is_valid:
     print("Error: YOUTUBE_API_KEY must be set in .env file.", file=sys.stderr)
     sys.exit(1)
 
-client = YouTubeClient(auth)
+client: YouTubeClient
+
+
+@asynccontextmanager
+async def lifespan(server: FastMCP):
+    global client
+    client = YouTubeClient(auth)
+    yield {"client": client}
+    client.close()
+
+
 mcp = FastMCP(
     "youtube-mcp",
     instructions="Interact with YouTube: search videos, get transcripts, find trending content, explore AI communities.",
+    lifespan=lifespan,
 )
 
 
