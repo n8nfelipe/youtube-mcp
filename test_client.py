@@ -1,8 +1,6 @@
-import json
 
 import pytest
 import respx
-from httpx import Response
 
 from auth import YouTubeAuth
 from client import YouTubeClient
@@ -218,12 +216,14 @@ def test_rate_limit(client: YouTubeClient) -> None:
 
 @respx.mock
 def test_get_video_transcript(client: YouTubeClient, mocker) -> None:
-    mock_fetch = mocker.patch("client.YouTubeTranscriptApi.fetch")
+    mock_api = mocker.patch("client.YouTubeTranscriptApi")
+    mock_instance = mocker.MagicMock()
+    mock_api.return_value = mock_instance
     mock_segment = mocker.MagicMock()
     mock_segment.text = "Hello world"
     mock_segment.start = 0.0
     mock_segment.duration = 2.0
-    mock_fetch.return_value = [mock_segment]
+    mock_instance.fetch.return_value = [mock_segment]
     result = client.get_video_transcript("abc123", "en")
     assert len(result) == 1
     assert result[0]["text"] == "Hello world"

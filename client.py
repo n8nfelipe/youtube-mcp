@@ -1,12 +1,10 @@
-import json
 from typing import Any
 from urllib.parse import urlencode
 
 import httpx
-from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api._api import YouTubeTranscriptApi
 
 from auth import YouTubeAuth
-from models import Channel, Comment, Video
 
 API_BASE = "https://www.googleapis.com/youtube/v3"
 
@@ -90,10 +88,11 @@ class YouTubeClient:
         return [self._parse_comment(item) for item in data.get("items", [])]
 
     def get_video_transcript(self, video_id: str, lang: str = "pt") -> list[dict[str, Any]]:
+        api = YouTubeTranscriptApi()
         try:
-            transcript = YouTubeTranscriptApi.fetch(video_id, languages=[lang])
+            transcript = api.fetch(video_id, languages=[lang])
         except Exception:
-            transcript = YouTubeTranscriptApi.fetch(video_id)
+            transcript = api.fetch(video_id)
         return [{"text": t.text, "start": t.start, "duration": t.duration} for t in transcript]
 
     def search_ai_communities(self, query: str = "artificial intelligence", max_results: int = 10) -> list[dict[str, Any]]:
