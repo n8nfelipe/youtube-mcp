@@ -60,6 +60,17 @@ python server.py
 
 Uses the YouTube Data API v3 for metadata, search, and comments, and `youtube-transcript-api` for subtitles (no extra auth needed).
 
+## Docker
+
+This is a stdio server, so the container must keep stdin open (`-i`):
+
+```bash
+docker build -t youtube-mcp .
+docker run -i --rm -e YOUTUBE_API_KEY="sua_chave" youtube-mcp
+```
+
+A `HEALTHCHECK` validates the MCP handshake on startup.
+
 ## Tests
 
 ```bash
